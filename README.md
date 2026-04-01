@@ -1,0 +1,2 @@
+# szcu_InternetOfThingsEngineering
+存储着szcu学校物联网专业的课程作业相关文件
