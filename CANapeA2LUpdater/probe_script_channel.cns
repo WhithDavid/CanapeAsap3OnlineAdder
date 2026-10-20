@@ -1,0 +1,2 @@
+// 最小只读脚本：仅验证 ASAP3 -> CASL 执行通道。
+SetScriptResult("CHANNEL_OK");
