@@ -1,0 +1,14 @@
+bin/
+Release/
+*.a2l
+*.elf
+*.mf4
+*.mdf
+*.cna
+*.dll
+*.exe
+*.7z
+test-output/
+Stable_*/
+GitHub_Sanitized/
+
