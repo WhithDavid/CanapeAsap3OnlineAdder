@@ -15,8 +15,6 @@ namespace CanapeA2LUpdater
 {
     public static class EntryPoint
     {
-        private const string DefaultVectorBin = @"C:\Path\To\ASAP2Studio\Bin";
-
         public static int Run(string[] args)
         {
             Options options;
@@ -481,9 +479,7 @@ namespace CanapeA2LUpdater
         public string CalibrationsPath;
         public string OutputA2l;
         public string ModuleName;
-        public string VectorBin = DefaultVectorBinValue;
-
-        private const string DefaultVectorBinValue = @"C:\Path\To\ASAP2Studio\Bin";
+        public string VectorBin = Environment.GetEnvironmentVariable("ASAP2_STUDIO_BIN");
 
         public static bool TryParse(string[] args, out Options options)
         {

@@ -32,6 +32,7 @@ internal sealed class MainForm : Form
     private readonly Label _canapeStatus = new Label();
     private readonly Label _asap3Status = new Label();
     private readonly Label _measurementStatus = new Label();
+    private readonly Label _environmentStatus = new Label();
     private readonly CheckBox _darkMode = new CheckBox();
     private readonly ProgressBar _progress = new ProgressBar();
     private readonly Label _status = new Label();
@@ -88,6 +89,7 @@ internal sealed class MainForm : Form
         LoadSettings();
         ApplyTheme();
         UpdateCanapeProcessStatus();
+        UpdateRuntimeStatus();
     }
 
     private Control CreateWorkspace()
@@ -185,6 +187,7 @@ internal sealed class MainForm : Form
         panel.Dock = DockStyle.Top;
         panel.AutoSize = true;
         panel.ColumnCount = 5;
+        panel.RowCount = 2;
         panel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
         panel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         panel.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -208,6 +211,13 @@ internal sealed class MainForm : Form
         _refreshStatus.AutoSize = true;
         _refreshStatus.Click += RefreshStatus;
         panel.Controls.Add(_refreshStatus, 4, 0);
+
+        _environmentStatus.AutoSize = true;
+        _environmentStatus.Dock = DockStyle.Fill;
+        _environmentStatus.Padding = new Padding(0, 0, 0, 6);
+        _environmentStatus.Text = "环境：尚未检测";
+        panel.Controls.Add(_environmentStatus, 0, 1);
+        panel.SetColumnSpan(_environmentStatus, 5);
         return panel;
     }
 
@@ -381,7 +391,50 @@ internal sealed class MainForm : Form
             if (dialog.ShowDialog(this) == DialogResult.OK)
             {
                 _elf.Text = dialog.FileName;
-                _settings.ElfDirectory = Path.GetDirectoryNa�M��G����ƭy�y(directoryProperty, Path.GetDirectoryName(dialog.FileName));
+                _settings.ElfDirectory = Path.GetDirectoryName(dialog.FileName);
+                SaveSettings();
+            }
+        }
+    }
+
+    private static void SetInitialDirectory(FileDialog dialog, string directory)
+    {
+        if (!string.IsNullOrWhiteSpace(directory) && Directory.Exists(directory))
+        {
+            dialog.InitialDirectory = directory;
+        }
+    }
+
+    private void ImportMeasurements(object sender, EventArgs e)
+    {
+        ImportList(_measurements, "Import Measurement List", "MeasurementDirectory");
+    }
+
+    private void ImportCalibrations(object sender, EventArgs e)
+    {
+        ImportList(_calibrations, "Import Calibration List", "CalibrationDirectory");
+    }
+
+    private void ExportMeasurements(object sender, EventArgs e)
+    {
+        ExportList(_measurements, "Export Measurement List", "measurements.txt");
+    }
+
+    private void ExportCalibrations(object sender, EventArgs e)
+    {
+        ExportList(_calibrations, "Export Calibration List", "calibrations.txt");
+    }
+
+    private void ImportList(TextBox target, string title, string directoryProperty)
+    {
+        using (OpenFileDialog dialog = new OpenFileDialog())
+        {
+            dialog.Filter = "Text files (*.txt;*.csv)|*.txt;*.csv|All files (*.*)|*.*";
+            dialog.Title = title;
+            SetInitialDirectory(dialog, GetListDirectory(directoryProperty));
+            if (dialog.ShowDialog(this) != DialogResult.OK) return;
+            target.Text = File.ReadAllText(dialog.FileName, Encoding.UTF8);
+            SetListDirectory(directoryProperty, Path.GetDirectoryName(dialog.FileName));
             SaveSettings();
         }
     }
@@ -414,6 +467,7 @@ internal sealed class MainForm : Form
 
     private void RefreshStatus(object sender, EventArgs e)
     {
+        UpdateRuntimeStatus();
         if (!File.Exists(_project.Text.Trim()))
         {
             SetStatusLabels("CANape：未选择工程", "ASAP3：未知", "测量：未知");
@@ -469,6 +523,8 @@ internal sealed class MainForm : Form
                     bool canapeRunning = Process.GetProcessesByName("CANape").Length > 0 ||
                         Process.GetProcessesByName("CANape64").Length > 0;
                     string apiError = ReadValue(result, "Asap3Init5 failed:");
+                    if (string.IsNullOrWhiteSpace(apiError))
+                        apiError = ReadValue(result, "CANape API discovery failed:");
                     if (string.IsNullOrWhiteSpace(apiError)) apiError = "连接失败";
                     SetStatusLabels(
                         canapeRunning ? "CANape：已运行" : "CANape：未运行",
@@ -492,6 +548,20 @@ internal sealed class MainForm : Form
             canapeRunning ? "CANape：已运行" : "CANape：未运行",
             "ASAP3：未检测",
             "测量：未检测");
+    }
+
+    private void UpdateRuntimeStatus()
+    {
+        try
+        {
+            _environmentStatus.Text = RuntimeDiscovery.GetEnvironmentSummary();
+            _environmentStatus.ForeColor = SystemColors.ControlText;
+        }
+        catch (Exception ex)
+        {
+            _environmentStatus.Text = "环境检测失败：" + ex.Message;
+            _environmentStatus.ForeColor = Color.Firebrick;
+        }
     }
 
     private static string ReadValue(string text, string prefix)

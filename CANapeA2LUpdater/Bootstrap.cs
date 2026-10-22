@@ -8,11 +8,18 @@ internal static class Bootstrap
 
     private static int Main(string[] args)
     {
-        _vectorBin = Environment.GetEnvironmentVariable("ASAP2_STUDIO_BIN");
+        _vectorBin = RuntimeDiscovery.FindAsap2StudioBin();
         if (string.IsNullOrWhiteSpace(_vectorBin))
         {
-            _vectorBin = @"C:\Path\To\ASAP2Studio\Bin";
+            Console.Error.WriteLine(
+                "ASAP2 Studio API was not found. Install Vector ASAP2 Studio or set ASAP2_STUDIO_BIN to its Bin directory.");
+            return 1;
         }
+        Environment.SetEnvironmentVariable("ASAP2_STUDIO_BIN", _vectorBin);
+        Console.WriteLine("DetectedAsap2StudioBin=" + _vectorBin);
+        Console.WriteLine(
+            "DetectedAsap2StudioVersion="
+            + RuntimeDiscovery.GetFileVersion(Path.Combine(_vectorBin, "Vector.MCD.ASAP2.DataModel.dll")));
 
         AppDomain.CurrentDomain.AssemblyResolve += ResolveVectorAssembly;
 

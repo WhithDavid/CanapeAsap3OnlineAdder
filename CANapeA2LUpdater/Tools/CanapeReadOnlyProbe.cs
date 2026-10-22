@@ -5,10 +5,9 @@ using System.Threading;
 
 internal static class CanapeReadOnlyProbe
 {
-    private const string Api = @"C:\Path\To\CANape\CANapeAPI\CANapAPI64.dll";
     private const string Asap3SessionMutexName = @"Local\QTAutoAdder.Asap3Session";
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3Init5(
         out IntPtr handle,
@@ -21,38 +20,38 @@ internal static class CanapeReadOnlyProbe
         [MarshalAs(UnmanagedType.I1)] bool hexMode,
         [MarshalAs(UnmanagedType.I1)] bool modalMode);
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3Exit2(
         IntPtr handle,
         [MarshalAs(UnmanagedType.I1)] bool closeCanape);
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetMeasurementState(IntPtr handle, out int state);
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetCNAFilename(
         IntPtr handle,
         StringBuilder fileName,
         ref uint size);
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetModuleHandle(
         IntPtr handle,
         string moduleName,
         out ushort module);
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetAsap2(
         IntPtr handle,
         ushort module,
         out IntPtr fileName);
 
-    [DllImport(Api, CallingConvention = CallingConvention.Winapi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.Winapi)]
     private static extern int Asap3GetLastError(IntPtr handle);
 
     private static int Main(string[] args)
@@ -61,6 +60,24 @@ internal static class CanapeReadOnlyProbe
         {
             Console.Error.WriteLine("Usage: CanapeReadOnlyProbe.exe <project-or-directory> <module-name>");
             return 2;
+        }
+
+        try
+        {
+            string apiPath = RuntimeDiscovery.PrepareCanapeApi(
+                "Asap3Init5",
+                "Asap3Exit2",
+                "Asap3GetMeasurementState",
+                "Asap3GetCNAFilename",
+                "Asap3GetModuleHandle",
+                "Asap3GetAsap2",
+                "Asap3GetLastError");
+            RuntimeDiscovery.WriteCanapeDetection(apiPath);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("CANape API discovery failed: " + ex.Message);
+            return 5;
         }
 
         using (Mutex sessionLock = AcquireSessionLock())

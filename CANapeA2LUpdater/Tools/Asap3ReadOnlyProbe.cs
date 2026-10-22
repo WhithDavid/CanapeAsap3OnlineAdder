@@ -5,7 +5,6 @@ using System.Threading;
 
 internal static class Asap3ReadOnlyProbe
 {
-    private const string ApiDll = @"C:\Path\To\CANape\CANapeAPI\CANapAPI64.dll";
     private const string Asap3SessionMutexName = @"Local\QTAutoAdder.Asap3Session";
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
@@ -35,7 +34,7 @@ internal static class Asap3ReadOnlyProbe
         public string Unit;
     }
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3Init5(
         out IntPtr handle,
@@ -48,48 +47,48 @@ internal static class Asap3ReadOnlyProbe
         [MarshalAs(UnmanagedType.I1)] bool hexMode,
         [MarshalAs(UnmanagedType.I1)] bool modalMode);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetProjectDirectory(
         IntPtr handle,
         StringBuilder directory,
         ref uint size);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall)]
     private static extern ushort Asap3GetLastError(IntPtr handle);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3Exit2(
         IntPtr handle,
         [MarshalAs(UnmanagedType.I1)] bool closeCanape);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetModuleHandle(
         IntPtr handle,
         string moduleName,
         out ushort moduleHandle);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetAsap2(
         IntPtr handle,
         ushort moduleHandle,
         out IntPtr fileName);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetDatabaseInfo(
         IntPtr handle,
         ushort moduleHandle,
         out DatabaseFileInfo info);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetMeasurementState(IntPtr handle, out int state);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetDBObjectInfo(
         IntPtr handle,
@@ -97,7 +96,7 @@ internal static class Asap3ReadOnlyProbe
         string objectName,
         out DatabaseObjectInfo info);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3ExecuteScript(
         IntPtr handle,
@@ -105,7 +104,7 @@ internal static class Asap3ReadOnlyProbe
         [MarshalAs(UnmanagedType.I1)] bool scriptFile,
         string script);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3ExecuteScriptEx(
         IntPtr handle,
@@ -114,7 +113,7 @@ internal static class Asap3ReadOnlyProbe
         string script,
         out UIntPtr scriptHandle);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetScriptState(
         IntPtr handle,
@@ -123,7 +122,7 @@ internal static class Asap3ReadOnlyProbe
         StringBuilder textBuffer,
         ref uint bufferSize);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3GetScriptResultString(
         IntPtr handle,
@@ -131,11 +130,11 @@ internal static class Asap3ReadOnlyProbe
         StringBuilder result,
         ref uint bufferSize);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3ReleaseScript(IntPtr handle, UIntPtr scriptHandle);
 
-    [DllImport(ApiDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+    [DllImport(RuntimeDiscovery.CanapeApiDllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
     [return: MarshalAs(UnmanagedType.I1)]
     private static extern bool Asap3StartScript(
         IntPtr handle,
@@ -149,6 +148,27 @@ internal static class Asap3ReadOnlyProbe
         {
             Console.Error.WriteLine("Usage: Asap3ReadOnlyProbe.exe <project> [read-only script] [object names...]");
             return 2;
+        }
+
+        try
+        {
+            string apiPath = RuntimeDiscovery.PrepareCanapeApi(
+                "Asap3Init5",
+                "Asap3GetProjectDirectory",
+                "Asap3GetLastError",
+                "Asap3Exit2",
+                "Asap3GetModuleHandle",
+                "Asap3GetAsap2",
+                "Asap3GetDatabaseInfo",
+                "Asap3GetMeasurementState",
+                "Asap3GetDBObjectInfo",
+                "Asap3ExecuteScript");
+            RuntimeDiscovery.WriteCanapeDetection(apiPath);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("CANape API discovery failed: " + ex.Message);
+            return 5;
         }
 
         using (Mutex sessionLock = AcquireSessionLock())
