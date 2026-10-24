@@ -70,10 +70,13 @@ internal static class CanapeOnlineApply
 
     public static int Main(string[] args)
     {
-        if (args.Length != 3)
+        bool restoreMode = args.Length == 4
+            && string.Equals(args[2], "--restore", StringComparison.OrdinalIgnoreCase);
+        if (args.Length != 3 && !restoreMode)
         {
-            Console.Error.WriteLine(
-                "Usage: CanapeOnlineApply.exe <project.cna> <module name> <validated candidate.a2l>");
+            Console.Error.WriteLine("Usage:");
+            Console.Error.WriteLine("  CanapeOnlineApply.exe <project.cna> <module name> <validated candidate.a2l>");
+            Console.Error.WriteLine("  CanapeOnlineApply.exe <project.cna> <module name> --restore <backup.a2l>");
             return 2;
         }
 
@@ -97,8 +100,7 @@ internal static class CanapeOnlineApply
 
         string project = Path.GetFullPath(args[0]);
         string moduleName = args[1];
-        string candidate = Path.GetFullPath(args[2]);
-        bool restoreMode = args.Length >= 4 && string.Equals(args[2], "--restore", StringComparison.OrdinalIgnoreCase);
+        string candidate = Path.GetFullPath(restoreMode ? args[3] : args[2]);
         if (!File.Exists(project) || !File.Exists(candidate))
         {
             Console.Error.WriteLine("Project or candidate A2L does not exist.");

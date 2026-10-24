@@ -162,7 +162,12 @@ internal static class Asap3ReadOnlyProbe
                 "Asap3GetDatabaseInfo",
                 "Asap3GetMeasurementState",
                 "Asap3GetDBObjectInfo",
-                "Asap3ExecuteScript");
+                "Asap3ExecuteScript",
+                "Asap3ExecuteScriptEx",
+                "Asap3GetScriptState",
+                "Asap3GetScriptResultString",
+                "Asap3ReleaseScript",
+                "Asap3StartScript");
             RuntimeDiscovery.WriteCanapeDetection(apiPath);
         }
         catch (Exception ex)

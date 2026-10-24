@@ -20,15 +20,24 @@ if ([string]::IsNullOrWhiteSpace($vectorBin)) {
         Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
         ForEach-Object { Join-Path $_ 'Vector ASAP2 Studio' } |
         Where-Object { Test-Path -LiteralPath $_ -PathType Container }
-    $vectorBin = $roots |
+    $vectorCandidates = $roots |
         ForEach-Object { Get-ChildItem -LiteralPath $_ -Directory -Filter 'ASAP2StudioCANape*' -ErrorAction SilentlyContinue } |
-        ForEach-Object { Join-Path $_.FullName 'Bin' } |
-        Where-Object {
-            $candidate = $_
-            -not ($requiredVectorFiles | Where-Object { -not (Test-Path -LiteralPath (Join-Path $candidate $_) -PathType Leaf) })
+        ForEach-Object {
+            $productDirectory = $_.FullName
+            $candidateBin = Join-Path $productDirectory 'Bin'
+            $missingFiles = $requiredVectorFiles | Where-Object {
+                -not (Test-Path -LiteralPath (Join-Path $candidateBin $_) -PathType Leaf)
+            }
+            if ($missingFiles.Count -eq 0) {
+                $versionText = $_.Name -replace '^ASAP2StudioCANape\s*', ''
+                $version = [version]'0.0'
+                if (-not [version]::TryParse($versionText, [ref]$version)) { $version = [version]'0.0' }
+                [pscustomobject]@{ Path = $candidateBin; Version = $version }
+            }
         } |
-        Sort-Object -Descending |
+        Sort-Object -Property Version -Descending |
         Select-Object -First 1
+    if ($null -ne $vectorCandidates) { $vectorBin = $vectorCandidates.Path }
 }
 if ([string]::IsNullOrWhiteSpace($vectorBin)) {
     throw 'ASAP2 Studio API not found. Set ASAP2_STUDIO_BIN to the Vector ASAP2 Studio Bin directory.'

@@ -522,7 +522,9 @@ internal sealed class MainForm : Form
                 {
                     bool canapeRunning = Process.GetProcessesByName("CANape").Length > 0 ||
                         Process.GetProcessesByName("CANape64").Length > 0;
-                    string apiError = ReadValue(result, "Asap3Init5 failed:");
+                    string apiError = ReadValue(result, "Asap3Init5 failed, error=");
+                    if (string.IsNullOrWhiteSpace(apiError))
+                        apiError = ReadValue(result, "Asap3Init5 failed:");
                     if (string.IsNullOrWhiteSpace(apiError))
                         apiError = ReadValue(result, "CANape API discovery failed:");
                     if (string.IsNullOrWhiteSpace(apiError)) apiError = "连接失败";
@@ -530,8 +532,6 @@ internal sealed class MainForm : Form
                         canapeRunning ? "CANape：已运行" : "CANape：未运行",
                         "ASAP3：不可用(" + apiError + ")",
                         "测量：未知");
-                    return;
-                    SetStatusLabels("CANape：未连接", "ASAP3：不可用", "测量：未知");
                     return;
                 }
                 string state = ReadValue(result, "MeasurementState=");
